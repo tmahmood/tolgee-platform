@@ -185,7 +185,6 @@ class KeyControllerWithNamespacesTest : ProjectAuthControllerTest("/v2/projects/
   @ProjectJWTAuthTestMethod
   @Test
   fun `key with namespace cannot be created when useNamespaces feature is disabled`() {
-    enableNamespaces()
     performProjectAuthPost("keys", mapOf("name" to "super_key", "namespace" to ""))
       .andIsCreated.andAssertThatJson {
         node("namespace").isNull()
