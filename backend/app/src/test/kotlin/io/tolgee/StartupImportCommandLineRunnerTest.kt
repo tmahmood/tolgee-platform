@@ -28,6 +28,7 @@ import org.springframework.test.context.DynamicPropertySource
 
 @Suppress("LateinitVarOverridesLateinitVar")
 @CleanDbBeforeClass
+@ActiveProfiles("tests")
 class StartupImportCommandLineRunnerTest : AbstractSpringTest() {
   private lateinit var base: Base
 
@@ -60,7 +61,6 @@ class StartupImportCommandLineRunnerTest : AbstractSpringTest() {
   @Test
   fun `imports data on startup`() {
     executeInNewTransaction {
-      println("CONTAINER: ${tolgeeProperties.postgresAutostart.containerName}")
       val projects = projectService.findAllByNameAndOrganizationOwner("examples", base.organization)
       assertThat(projects).isNotEmpty
       val project = projects.first()

@@ -1,6 +1,7 @@
 package io.tolgee.postgresRunners
 
 import io.tolgee.PostgresRunner
+import io.tolgee.getRandomContainerPort
 import io.tolgee.configuration.tolgee.PostgresAutostartProperties
 import io.tolgee.misc.dockerRunner.DockerContainerRunner
 import org.slf4j.LoggerFactory
@@ -10,7 +11,7 @@ open class PostgresDockerTestRunner(
 ) : PostgresRunner {
   private var instance: DockerContainerRunner? = null
   private val logger = LoggerFactory.getLogger(javaClass)
-  private val port = (56000..57000).random().toString()
+  private var port: String? = null
   private var containerName: String? = null
 
   fun getRandomString(length: Int) : String {
@@ -21,11 +22,21 @@ open class PostgresDockerTestRunner(
   }
 
   override fun run() {
-    containerName = getRandomString(10)
+    logger.info(postgresAutostartProperties.containerName)
+
+    containerName = if (postgresAutostartProperties.containerName.startsWith("test_")) {
+      postgresAutostartProperties.containerName
+    } else {
+      getRandomString(10)
+    }
+    port = getRandomContainerPort()
+
+    logger.info("SELECTED $port for $containerName")
+
     instance =
       DockerContainerRunner(
           image = "postgres:16.3",
-          expose = mapOf(port to "5432"),
+          expose = mapOf(port.toString() to "5432"),
           waitForLog = "database system is ready to accept connections",
           waitForLogTimesForNewContainer = 2,
           waitForLogTimesForExistingContainer = 1,
@@ -49,20 +60,18 @@ open class PostgresDockerTestRunner(
   }
 
   override fun stop() {
-    if (postgresAutostartProperties.stop) {
-      instance?.let {
-        logger.info("Stopping Postgres container")
-        it.stop()
-      }
+    instance?.let {
+      logger.info("Stopping Postgres container")
+      it.stop()
     }
   }
 
   override val shouldRunMigrations: Boolean
     // we don't want to run migrations when the container existed, and we are not stopping it,
     // this happens only for tests and there we can delete the database and start again with migrations
-    get() = instance?.containerExisted != true || postgresAutostartProperties.stop
+    get() = true
 
   override val datasourceUrl by lazy {
-    "jdbc:postgresql://localhost:${postgresAutostartProperties.port}/${postgresAutostartProperties.databaseName}"
+    "jdbc:postgresql://localhost:${port}/${postgresAutostartProperties.databaseName}"
   }
 }

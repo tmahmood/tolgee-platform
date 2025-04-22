@@ -16,7 +16,6 @@ import io.tolgee.security.InitialPasswordManager
 import io.tolgee.service.project.ProjectService
 import io.tolgee.service.security.UserAccountService
 import io.tolgee.testing.AbstractTransactionalTest
-import io.tolgee.testing.ContextRecreatingTest
 import io.tolgee.testing.assertions.Assertions.assertThat
 import io.tolgee.util.InMemoryFileStorage
 import org.junit.jupiter.api.AfterAll
@@ -26,19 +25,20 @@ import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 
-@ContextRecreatingTest
 @SpringBootTest(
   classes = [Application::class],
   properties = [
     "tolgee.authentication.initial-username=johny",
-    "tolgee.internal.disable-initial-user-creation=false",
+    "tolgee.internal.disable-initial-user-creation=false"
   ],
 )
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 @CleanDbBeforeClass
+@ActiveProfiles("tests")
 class CreateEnabledTest : AbstractTransactionalTest() {
   @set:Autowired
   lateinit var tolgeeProperties: TolgeeProperties
