@@ -6,6 +6,7 @@ package io.tolgee
 
 import io.tolgee.commandLineRunners.StartupImportCommandLineRunner
 import io.tolgee.configuration.tolgee.ImportProperties
+import io.tolgee.configuration.tolgee.PostgresAutostartProperties
 import io.tolgee.configuration.tolgee.TolgeeProperties
 import io.tolgee.development.Base
 import io.tolgee.testing.assert
@@ -15,8 +16,15 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.SpyBean
+import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
+
 
 @Suppress("LateinitVarOverridesLateinitVar")
 @CleanDbBeforeClass
@@ -32,6 +40,7 @@ class StartupImportCommandLineRunnerTest : AbstractSpringTest() {
 
   @Autowired
   lateinit var startupImportCommandLineRunner: StartupImportCommandLineRunner
+
 
   @BeforeAll
   fun setup() {
@@ -51,6 +60,7 @@ class StartupImportCommandLineRunnerTest : AbstractSpringTest() {
   @Test
   fun `imports data on startup`() {
     executeInNewTransaction {
+      println("CONTAINER: ${tolgeeProperties.postgresAutostart.containerName}")
       val projects = projectService.findAllByNameAndOrganizationOwner("examples", base.organization)
       assertThat(projects).isNotEmpty
       val project = projects.first()
