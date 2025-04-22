@@ -3,6 +3,7 @@ package io.tolgee.postgresRunners
 import io.tolgee.PostgresRunner
 import io.tolgee.getRandomContainerPort
 import io.tolgee.configuration.tolgee.PostgresAutostartProperties
+import io.tolgee.getRandomString
 import io.tolgee.misc.dockerRunner.DockerContainerRunner
 import org.slf4j.LoggerFactory
 
@@ -13,13 +14,6 @@ open class PostgresDockerTestRunner(
   private val logger = LoggerFactory.getLogger(javaClass)
   private var port: String? = null
   private var containerName: String? = null
-
-  fun getRandomString(length: Int) : String {
-    val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
-    return (1..length)
-      .map { allowedChars.random() }
-      .joinToString("")
-  }
 
   override fun run() {
     logger.info(postgresAutostartProperties.containerName)
