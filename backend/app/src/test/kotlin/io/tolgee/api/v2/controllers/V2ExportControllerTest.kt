@@ -33,18 +33,20 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MvcResult
 import org.springframework.transaction.annotation.Transactional
 import java.io.ByteArrayInputStream
 import java.util.zip.ZipInputStream
 import kotlin.system.measureTimeMillis
 
-@ContextRecreatingTest
+
 @SpringBootTest(
   properties = [
     "tolgee.cache.enabled=true",
   ],
 )
+@ActiveProfiles("tests")
 class V2ExportControllerTest : ProjectAuthControllerTest("/v2/projects/") {
   var testData: TranslationsTestData? = null
   var namespacesTestData: NamespacesTestData? = null
@@ -69,7 +71,6 @@ class V2ExportControllerTest : ProjectAuthControllerTest("/v2/projects/") {
   @Transactional
   @ProjectJWTAuthTestMethod
   fun `it exports to json`() {
-    retryingOnCommonIssues {
       executeInNewTransaction {
         initBaseData()
       }
@@ -78,13 +79,11 @@ class V2ExportControllerTest : ProjectAuthControllerTest("/v2/projects/") {
       assertThatJson(parsed["en.json"]!!) {
         node("Z key").isEqualTo("A translation")
       }
-    }
   }
 
   @Test
   @ProjectJWTAuthTestMethod
   fun `it reports business event once in a day`() {
-    retryingOnCommonIssues {
       clearCaches()
       initBaseData()
       Mockito.reset(postHog)
@@ -103,14 +102,12 @@ class V2ExportControllerTest : ProjectAuthControllerTest("/v2/projects/") {
       } finally {
         Mockito.reset(postHog)
       }
-    }
   }
 
   @Test
   @Transactional
   @ProjectJWTAuthTestMethod
   fun `it exports to single json`() {
-    retryingOnCommonIssues {
       executeInNewTransaction {
         initBaseData()
       }
@@ -124,14 +121,12 @@ class V2ExportControllerTest : ProjectAuthControllerTest("/v2/projects/") {
         .isEqualTo("application/json")
       assertThat(response.andReturn().response.getHeaderValue("content-disposition"))
         .isEqualTo("""attachment; filename="en.json"""")
-    }
   }
 
   @Test
   @Transactional
   @ProjectJWTAuthTestMethod
   fun `it exports to single xliff`() {
-    retryingOnCommonIssues {
       executeInNewTransaction {
         initBaseData()
       }
@@ -143,14 +138,12 @@ class V2ExportControllerTest : ProjectAuthControllerTest("/v2/projects/") {
         .isEqualTo("application/x-xliff+xml")
       assertThat(response.andReturn().response.getHeaderValue("content-disposition"))
         .isEqualTo("""attachment; filename="en.xliff"""")
-    }
   }
 
   @Test
   @Transactional
   @ProjectJWTAuthTestMethod
   fun `it filters by keyId in`() {
-    retryingOnCommonIssues {
       testData = TranslationsTestData()
       testData!!.generateLotOfData(1000)
       testDataService.saveTestData(testData!!.root)
@@ -173,14 +166,12 @@ class V2ExportControllerTest : ProjectAuthControllerTest("/v2/projects/") {
         }
 
       assertThat(time).isLessThan(2000)
-    }
   }
 
   @Test
   @Transactional
   @ProjectJWTAuthTestMethod
   fun `the structureDelimiter works`() {
-    retryingOnCommonIssues {
       testData = TranslationsTestData()
       testData!!.generateScopedData()
       testDataService.saveTestData(testData!!.root)
@@ -202,7 +193,6 @@ class V2ExportControllerTest : ProjectAuthControllerTest("/v2/projects/") {
           node("hello.i.am.scoped").isEqualTo("yupee!")
         }
       }
-    }
   }
 
   private fun performExport(query: String = ""): Map<String, String> {
@@ -237,20 +227,18 @@ class V2ExportControllerTest : ProjectAuthControllerTest("/v2/projects/") {
   @Transactional
   @ProjectJWTAuthTestMethod
   fun `it exports to json with namespaces`() {
-    retryingOnCommonIssues {
-      namespacesTestData = NamespacesTestData()
-      testDataService.saveTestData(namespacesTestData!!.root)
-      projectSupplier = { namespacesTestData!!.projectBuilder.self }
-      userAccount = namespacesTestData!!.user
+    namespacesTestData = NamespacesTestData()
+    testDataService.saveTestData(namespacesTestData!!.root)
+    projectSupplier = { namespacesTestData!!.projectBuilder.self }
+    userAccount = namespacesTestData!!.user
 
-      val parsed = performExport()
+    val parsed = performExport()
 
-      assertThatJson(parsed["ns-1/en.json"]!!) {
-        node("key").isEqualTo("hello")
-      }
-      assertThatJson(parsed["en.json"]!!) {
-        node("key").isEqualTo("hello")
-      }
+    assertThatJson(parsed["ns-1/en.json"]!!) {
+      node("key").isEqualTo("hello")
+    }
+    assertThatJson(parsed["en.json"]!!) {
+      node("key").isEqualTo("hello")
     }
   }
 
@@ -258,7 +246,6 @@ class V2ExportControllerTest : ProjectAuthControllerTest("/v2/projects/") {
   @Transactional
   @ProjectJWTAuthTestMethod
   fun `it exports only allowed languages`() {
-    retryingOnCommonIssues {
       languagePermissionsTestData = LanguagePermissionsTestData()
       testDataService.saveTestData(languagePermissionsTestData!!.root)
       projectSupplier = { languagePermissionsTestData!!.projectBuilder.self }
@@ -267,14 +254,12 @@ class V2ExportControllerTest : ProjectAuthControllerTest("/v2/projects/") {
       val parsed = performExport()
       val files = parsed.keys
       files.assert.containsExactly("en.json")
-    }
   }
 
   @Test
   @Transactional
   @ProjectJWTAuthTestMethod
   fun `it exports all languages by default`() {
-    retryingOnCommonIssues {
       val testData = TestDataBuilder()
       val user =
         testData.addUserAccount {
@@ -315,7 +300,6 @@ class V2ExportControllerTest : ProjectAuthControllerTest("/v2/projects/") {
       } finally {
         testDataService.cleanTestData(testData)
       }
-    }
   }
 
   private fun initBaseData() {

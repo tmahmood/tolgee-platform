@@ -15,9 +15,9 @@ import org.mockito.Mockito
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.ActiveProfiles
 
 @AutoConfigureMockMvc
-@ContextRecreatingTest
 @SpringBootTest(
   properties = [
     "tolgee.cache.enabled=true",
@@ -29,6 +29,7 @@ import org.springframework.boot.test.context.SpringBootTest
     "tolgee.rate-limits.email-verification-request-window=10000",
   ],
 )
+@ActiveProfiles("tests")
 class RateLimitsTest : AuthorizedControllerTest() {
   @BeforeEach
   fun clearCache() {

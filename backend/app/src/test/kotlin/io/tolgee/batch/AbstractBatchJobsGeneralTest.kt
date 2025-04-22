@@ -16,11 +16,13 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.SpyBean
+import org.springframework.test.context.ActiveProfiles
 import java.time.Duration
 import java.util.*
 import kotlin.math.ceil
 
 @WebsocketTest
+@ActiveProfiles("tests")
 abstract class AbstractBatchJobsGeneralTest : AbstractSpringTest(), Logging {
   private lateinit var testData: BatchJobsTestData
 
