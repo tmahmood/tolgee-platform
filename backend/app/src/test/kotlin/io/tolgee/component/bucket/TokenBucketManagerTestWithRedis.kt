@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 
 @SpringBootTest(
@@ -19,7 +20,6 @@ import org.springframework.test.context.ContextConfiguration
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 )
 @ContextConfiguration(initializers = [TokenBucketManagerTestWithRedis.Companion.Initializer::class])
-@ContextRecreatingTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class TokenBucketManagerTestWithRedis : AbstractTokenBucketManagerTest() {
   companion object {
