@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional
 @CleanDbBeforeClass
 @ActiveProfiles("tests")
 class CreateEnabledTest : AbstractTransactionalTest() {
+
   @set:Autowired
   lateinit var tolgeeProperties: TolgeeProperties
 
@@ -66,6 +67,7 @@ class CreateEnabledTest : AbstractTransactionalTest() {
 
   @Autowired
   lateinit var quickStartRepository: QuickStartRepository
+
 
   @BeforeAll
   fun callTheRunner() {

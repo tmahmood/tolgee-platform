@@ -4,39 +4,77 @@ import io.tolgee.PostgresRunner
 import io.tolgee.getRandomContainerPort
 import io.tolgee.configuration.tolgee.PostgresAutostartProperties
 import io.tolgee.getRandomString
+import io.tolgee.isPortInUse
 import io.tolgee.misc.dockerRunner.DockerContainerRunner
 import org.slf4j.LoggerFactory
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Profile
+import org.springframework.test.context.TestContext
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.hasAnnotation
 
+@Profile("tests")
+@SpringBootTest(
+  properties = [
+    "tolgee.postgres-autostart.stop=true"
+  ],
+)
 open class PostgresDockerTestRunner(
     private val postgresAutostartProperties: PostgresAutostartProperties,
 ) : PostgresRunner {
-  private var instance: DockerContainerRunner? = null
+  private var instances = listOf<DockerContainerRunner>()
   private val logger = LoggerFactory.getLogger(javaClass)
   private var port: String? = null
   private var containerName: String? = null
+  private val containers  = listOf(
+    Pair("test_container_01", 52401),
+    Pair("test_container_02", 52402),
+    Pair("test_container_03", 52403),
+    Pair("test_container_04", 52404),
+    Pair("test_container_05", 52405),
+    Pair("test_container_06", 52406),
+    Pair("test_container_07", 52407),
+    Pair("test_container_08", 52408),
+    Pair("test_container_09", 52409),
+    Pair("test_container_10", 52410),
+  )
+  private var currentInstance: Int = 0
 
   override fun run() {
-    logger.info(postgresAutostartProperties.containerName)
-
-    containerName = if (postgresAutostartProperties.containerName.startsWith("test_")) {
-      postgresAutostartProperties.containerName
-    } else {
-      getRandomString(10)
+    // first check if any port from our list is available?
+    for (c in containers) {
+      if (!isPortInUse( c.second)) {
+        port = c.second.toString()
+        containerName = c.first
+        break
+      }
     }
-    port = getRandomContainerPort()
+    // if all containers are initialized
+    if(port == null) {
+      // take the oldest container that was active
+      currentInstance += 1
+      if(currentInstance > containers.size) {
+        currentInstance = 0
+      }
+      // set the port and containerName
+      port = containers[currentInstance].second.toString()
+      containerName = containers[currentInstance].first
+      logger.info("SELECTED $port for $containerName")
+      // no need to stay here, because we already have a container running
+      return
+    }
 
-    logger.info("SELECTED $port for $containerName")
-
-    instance =
+    logger.info("Initializing SELECTED $port for $containerName")
+    instances.plus(
       DockerContainerRunner(
           image = "postgres:16.3",
           expose = mapOf(port.toString() to "5432"),
           waitForLog = "database system is ready to accept connections",
           waitForLogTimesForNewContainer = 2,
           waitForLogTimesForExistingContainer = 1,
-          rm = true,
+          rm = false,
           name = containerName,
-          stopBeforeStart = false,
+          stopBeforeStart = true,
           env =
               mapOf(
                   "POSTGRES_PASSWORD" to postgresAutostartProperties.password,
@@ -50,14 +88,11 @@ open class PostgresDockerTestRunner(
       ).also {
         logger.info("Starting Postgres Docker container")
         it.run()
-      }
+      })
   }
 
   override fun stop() {
-    instance?.let {
-      logger.info("Stopping Postgres container")
-      it.stop()
-    }
+    instances.forEach { it.stop() }
   }
 
   override val shouldRunMigrations: Boolean
