@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 
 @SpringBootTest(
@@ -32,6 +33,7 @@ import org.springframework.test.context.ContextConfiguration
   ],
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 )
+@ActiveProfiles("tests")
 @ContextConfiguration(initializers = [BatchJobsGeneralWithRedisTest.Companion.Initializer::class])
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class BatchJobsGeneralWithRedisTest : AbstractBatchJobsGeneralTest() {

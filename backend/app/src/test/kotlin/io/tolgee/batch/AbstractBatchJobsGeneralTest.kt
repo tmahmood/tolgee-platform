@@ -22,7 +22,6 @@ import java.util.*
 import kotlin.math.ceil
 
 @WebsocketTest
-@ActiveProfiles("tests")
 abstract class AbstractBatchJobsGeneralTest : AbstractSpringTest(), Logging {
   private lateinit var testData: BatchJobsTestData
 
