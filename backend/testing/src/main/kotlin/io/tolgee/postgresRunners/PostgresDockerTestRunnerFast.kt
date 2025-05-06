@@ -5,14 +5,10 @@ import io.tolgee.configuration.tolgee.PostgresAutostartProperties
 import io.tolgee.isPortInUse
 import io.tolgee.misc.dockerRunner.DockerContainerRunner
 import org.slf4j.LoggerFactory
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Profile
 
 @Profile("tests")
-// @SpringBootTest(
-//   properties = [
-//     "tolgee.postgres-autostart.stop=true"
-//   ],
-// )
 open class PostgresDockerTestRunnerFast(
     private val postgresAutostartProperties: PostgresAutostartProperties,
 ) : PostgresRunner {
@@ -58,9 +54,9 @@ open class PostgresDockerTestRunnerFast(
           waitForLog = "database system is ready to accept connections",
           waitForLogTimesForNewContainer = 2,
           waitForLogTimesForExistingContainer = 1,
-          rm = true,
+          rm = false,
           name = containerName,
-          stopBeforeStart = true,
+          stopBeforeStart = false,
           env =
               mapOf(
                   "POSTGRES_PASSWORD" to postgresAutostartProperties.password,

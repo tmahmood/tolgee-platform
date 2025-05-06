@@ -25,8 +25,6 @@ open class PostgresDockerTestRunnerSlow(
     Pair("test_container_02", 52402),
     Pair("test_container_03", 52403),
     Pair("test_container_04", 52404),
-    Pair("test_container_07", 52407),
-    Pair("test_container_08", 52408),
   )
   private var currentInstance: Int = 0
 
