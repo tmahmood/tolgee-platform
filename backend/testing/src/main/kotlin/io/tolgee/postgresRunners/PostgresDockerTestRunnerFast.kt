@@ -19,6 +19,8 @@ open class PostgresDockerTestRunnerFast(
   private val containers  = listOf(
     Pair("test_container_05", 52405),
     Pair("test_container_06", 52406),
+    Pair("test_container_07", 52407),
+    Pair("test_container_08", 52408),
   )
   private var currentInstance: Int = 0
 
