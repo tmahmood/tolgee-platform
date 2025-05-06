@@ -3,22 +3,29 @@ package io.tolgee.postgresRunners
 import io.tolgee.PostgresRunner
 import io.tolgee.getRandomContainerPort
 import io.tolgee.configuration.tolgee.PostgresAutostartProperties
+import io.tolgee.development.DbPopulatorReal
 import io.tolgee.getRandomString
 import io.tolgee.isPortInUse
 import io.tolgee.misc.dockerRunner.DockerContainerRunner
+import io.tolgee.misc.dockerRunner.DockerContainerRunner.CommandRunFailedException
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestComponent
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Profile
 import org.springframework.test.context.TestContext
+import java.io.File
+import java.util.concurrent.TimeUnit
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 
 @Profile("tests")
-@SpringBootTest(
-  properties = [
-    "tolgee.postgres-autostart.stop=true"
-  ],
-)
+// @SpringBootTest(
+//   properties = [
+//     "tolgee.postgres-autostart.stop=true"
+//   ],
+// )
 open class PostgresDockerTestRunner(
     private val postgresAutostartProperties: PostgresAutostartProperties,
 ) : PostgresRunner {
@@ -74,7 +81,7 @@ open class PostgresDockerTestRunner(
           waitForLogTimesForExistingContainer = 1,
           rm = false,
           name = containerName,
-          stopBeforeStart = true,
+          stopBeforeStart = false,
           env =
               mapOf(
                   "POSTGRES_PASSWORD" to postgresAutostartProperties.password,

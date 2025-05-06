@@ -17,11 +17,13 @@ import org.mockito.kotlin.verify
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @ContextRecreatingTest
+@ActiveProfiles("tests")
 class AutoTranslatingTest : MachineTranslationTest() {
   companion object {
     private const val INITIAL_BUCKET_CREDITS = 150000L

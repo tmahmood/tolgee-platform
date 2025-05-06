@@ -20,11 +20,13 @@ import org.junit.jupiter.api.Test
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpHeaders
+import org.springframework.test.context.ActiveProfiles
 import java.math.BigDecimal
 import java.util.*
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("tests")
 class ApiKeyControllerTest : AuthorizedControllerTest() {
   lateinit var testData: ApiKeysTestData
 
