@@ -36,11 +36,13 @@ import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.SpyBean
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.ConcurrentHashMap
 
+@Profile("testsSlow")
 class BatchJobManagementControllerTest : ProjectAuthControllerTest("/v2/projects/"), Logging {
   lateinit var testData: BatchJobsTestData
 

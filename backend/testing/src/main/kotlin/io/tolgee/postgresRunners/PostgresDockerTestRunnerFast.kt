@@ -1,24 +1,11 @@
 package io.tolgee.postgresRunners
 
 import io.tolgee.PostgresRunner
-import io.tolgee.getRandomContainerPort
 import io.tolgee.configuration.tolgee.PostgresAutostartProperties
-import io.tolgee.development.DbPopulatorReal
-import io.tolgee.getRandomString
 import io.tolgee.isPortInUse
 import io.tolgee.misc.dockerRunner.DockerContainerRunner
-import io.tolgee.misc.dockerRunner.DockerContainerRunner.CommandRunFailedException
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.TestComponent
-import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Profile
-import org.springframework.test.context.TestContext
-import java.io.File
-import java.util.concurrent.TimeUnit
-import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.hasAnnotation
 
 @Profile("tests")
 // @SpringBootTest(
@@ -26,7 +13,7 @@ import kotlin.reflect.full.hasAnnotation
 //     "tolgee.postgres-autostart.stop=true"
 //   ],
 // )
-open class PostgresDockerTestRunner(
+open class PostgresDockerTestRunnerFast(
     private val postgresAutostartProperties: PostgresAutostartProperties,
 ) : PostgresRunner {
   private var instances = listOf<DockerContainerRunner>()
@@ -34,16 +21,8 @@ open class PostgresDockerTestRunner(
   private var port: String? = null
   private var containerName: String? = null
   private val containers  = listOf(
-    Pair("test_container_01", 52401),
-    Pair("test_container_02", 52402),
-    Pair("test_container_03", 52403),
-    Pair("test_container_04", 52404),
     Pair("test_container_05", 52405),
     Pair("test_container_06", 52406),
-    Pair("test_container_07", 52407),
-    Pair("test_container_08", 52408),
-    Pair("test_container_09", 52409),
-    Pair("test_container_10", 52410),
   )
   private var currentInstance: Int = 0
 
@@ -79,9 +58,9 @@ open class PostgresDockerTestRunner(
           waitForLog = "database system is ready to accept connections",
           waitForLogTimesForNewContainer = 2,
           waitForLogTimesForExistingContainer = 1,
-          rm = false,
+          rm = true,
           name = containerName,
-          stopBeforeStart = false,
+          stopBeforeStart = true,
           env =
               mapOf(
                   "POSTGRES_PASSWORD" to postgresAutostartProperties.password,

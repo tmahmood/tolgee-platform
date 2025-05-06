@@ -1,7 +1,7 @@
 package io.tolgee
 
 import io.tolgee.configuration.tolgee.PostgresAutostartProperties
-import io.tolgee.postgresRunners.PostgresDockerTestRunner
+import io.tolgee.postgresRunners.PostgresDockerTestRunnerSlow
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
@@ -16,7 +16,7 @@ class PostgresTestRunnerConfiguration {
   @Primary
   fun postgresTestRunner(): PostgresRunner? {
     val postgresAutostartProperties = PostgresAutostartProperties()
-    return PostgresDockerTestRunner(postgresAutostartProperties)
+    return PostgresDockerTestRunnerSlow(postgresAutostartProperties)
   }
 
 }
