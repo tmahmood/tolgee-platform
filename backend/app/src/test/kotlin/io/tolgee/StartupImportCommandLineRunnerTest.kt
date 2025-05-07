@@ -28,7 +28,6 @@ import org.springframework.test.context.DynamicPropertySource
 
 @Suppress("LateinitVarOverridesLateinitVar")
 @CleanDbBeforeClass
-@ActiveProfiles("tests")
 class StartupImportCommandLineRunnerTest : AbstractSpringTest() {
   private lateinit var base: Base
 

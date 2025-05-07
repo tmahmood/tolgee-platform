@@ -33,7 +33,6 @@ import org.springframework.test.context.ContextConfiguration
   ],
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 )
-@ActiveProfiles("tests")
 @ContextConfiguration(initializers = [BatchJobsGeneralWithRedisTest.Companion.Initializer::class])
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class BatchJobsGeneralWithRedisTest : AbstractBatchJobsGeneralTest() {

@@ -45,7 +45,7 @@ tolgee:
     signingSecret: fakeSecret
   postgres-autostart:
     enabled: true
-    container-name: tolgee_postgres
+    container-name: tolgee_postgres_app
     port: 55434
     stop: true
   data-path: ./build/test_data

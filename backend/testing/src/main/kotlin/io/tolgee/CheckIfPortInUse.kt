@@ -25,6 +25,15 @@ public fun runCommand(
     process.errorStream.bufferedReader().readText()
 }
 
+public fun runCommandNoWait(
+  cmd: String,
+  workingDir: File = File("."),
+) {
+  val process = ProcessBuilder("\\s+".toRegex().split(cmd.trim()))
+    .directory(workingDir)
+    .start()
+}
+
 
 public fun getRandomString(length: Int): String {
   val allowedChars = ('A'..'Z') + ('a'..'z')

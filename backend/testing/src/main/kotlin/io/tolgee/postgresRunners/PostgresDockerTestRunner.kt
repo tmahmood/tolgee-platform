@@ -5,6 +5,7 @@ import io.tolgee.configuration.tolgee.PostgresAutostartProperties
 import io.tolgee.getRandomString
 import io.tolgee.misc.dockerRunner.DockerContainerRunner
 import io.tolgee.runCommand
+import io.tolgee.runCommandNoWait
 import org.slf4j.LoggerFactory
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Profile
@@ -15,18 +16,19 @@ import org.springframework.context.annotation.Profile
     "tolgee.postgres-autostart.stop=true"
   ],
 )
-
 open class PostgresDockerTestRunner(
   private val postgresAutostartProperties: PostgresAutostartProperties,
 ) : PostgresRunner {
-  private var instances:DockerContainerRunner? = null
+  private var instances:List<DockerContainerRunner> = listOf();
+  private var instance:DockerContainerRunner? = null
   private val logger = LoggerFactory.getLogger(javaClass)
   private var port: String? = null
   private var containerName: String? = null
 
   override fun run() {
-    val baseContainerName = postgresAutostartProperties.containerName
     // first create the base image
+    val baseContainerName = postgresAutostartProperties.containerName
+    val containersRunning = runCommand("docker ps");
     DockerContainerRunner(
       image = "postgres:16.3",
       expose = mapOf(postgresAutostartProperties.port to "5432"),
@@ -47,7 +49,8 @@ open class PostgresDockerTestRunner(
             "-c fsync=off -c synchronous_commit=off -c full_page_writes=off",
       timeout = 300000,
     ).also {
-      if (runCommand("docker ps").contains(baseContainerName)) {
+      if (containersRunning.contains(baseContainerName)) {
+        logger.info("base container is running, creating image")
         if(!runCommand("docker images").contains(baseContainerName)) {
           runCommand("docker commit $baseContainerName $baseContainerName:latest")
         }
@@ -56,11 +59,35 @@ open class PostgresDockerTestRunner(
         println(runCommand("docker commit $baseContainerName $baseContainerName:latest"))
       }
     };
+    val tlgContainers = containersRunning.split("\n")
+      .filter { it.contains("tlg-") }
+
+    val containerNames = tlgContainers
+      .map { "tlg-".plus(it.split("tlg-").last()).trim() };
+
+    val oldContainers = tlgContainers
+      .filter { it.contains("minutes") }
+      .reversed()
+      .map { "tlg-".plus(it.split("tlg-").last()).trim() }
+
+    // if(containerNames.size > 20) {
+    //   logger.info("closing old containers")
+    //   oldContainers.forEach { runCommandNoWait("docker stop $it") }
+    //   logger.info("closed old containers")
+    // }
+
+    val portsToAvoid = containersRunning.split("\n")
+      .filter{ it.contains("0.0.0.0:") }
+      .map { it -> it.split("0.0.0.0:").last() }
+      .map { it -> it.split("-").first()}
 
     var foundContainer = false;
     while (!foundContainer) {
-      containerName = getRandomString(10);
-      port = (55410..55450).random().toString()
+      containerName = "tlg-${getRandomString(10)}";
+      port = (55410..56420).random().toString()
+      if(portsToAvoid.contains(port) || containerNames.contains(containerName)) {
+        continue
+      }
       DockerContainerRunner(
         image = baseContainerName,
         expose = mapOf(port.toString() to "5432"),
@@ -81,21 +108,20 @@ open class PostgresDockerTestRunner(
               "-c fsync=off -c synchronous_commit=off -c full_page_writes=off",
         timeout = 300000,
       ).also {
-        if (!it.containerExisted) {
-          try {
-            it.run()
-          } catch(dockerContainerRunner: DockerContainerRunner.CommandRunFailedException) {
-          }
+        try {
+          it.run()
+          instance = it
+          foundContainer = true;
+        } catch(dockerContainerRunner: DockerContainerRunner.CommandRunFailedException) {
+          logger.warn("Failed to run container")
         }
-        instances = it
-        foundContainer = true;
       }
     }
   }
 
 
   override fun stop() {
-    instances!!.stop()
+    instance!!.stop()
   }
 
   override val shouldRunMigrations: Boolean

@@ -38,7 +38,6 @@ import org.springframework.transaction.annotation.Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 @CleanDbBeforeClass
-@ActiveProfiles("tests")
 class CreateEnabledTest : AbstractTransactionalTest() {
 
   @set:Autowired

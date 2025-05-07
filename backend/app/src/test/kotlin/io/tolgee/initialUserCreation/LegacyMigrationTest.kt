@@ -33,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional
 )
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
-@CleanDbBeforeClass
 class LegacyMigrationTest : AbstractSpringTest() {
   @Autowired
   lateinit var userAccountRepository: UserAccountRepository

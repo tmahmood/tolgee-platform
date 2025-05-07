@@ -26,7 +26,6 @@ import java.util.*
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("tests")
 class ApiKeyControllerTest : AuthorizedControllerTest() {
   lateinit var testData: ApiKeysTestData
 
