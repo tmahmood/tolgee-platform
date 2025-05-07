@@ -1,38 +1,32 @@
 package io.tolgee
 
-import java.net.ConnectException
-import java.net.InetAddress
-import java.net.InetSocketAddress
-import java.net.Socket
-import org.slf4j.LoggerFactory
-import java.io.IOException
+import io.tolgee.misc.dockerRunner.DockerContainerRunner
+import java.io.File
+import java.util.concurrent.TimeUnit
 
-fun isPortInUse(port: Int): Boolean {
-  val logger = LoggerFactory.getLogger("port-in-use")
-  val socket = Socket()
-  val inetAddress = InetAddress.getByName("0.0.0.0")
-  val socketAddress = InetSocketAddress(inetAddress, port)
-  try {
-    socket.connect(socketAddress)
-    socket.bind(socketAddress)
-  } catch (n: ConnectException) {
-    return false
-  } catch (n: IOException) {
-    return true
+
+public fun runCommand(
+  cmd: String,
+  workingDir: File = File("."),
+  timeoutAmount: Long = 120,
+  timeoutUnit: TimeUnit = TimeUnit.SECONDS,
+): String {
+  val process = ProcessBuilder("\\s+".toRegex().split(cmd.trim()))
+    .directory(workingDir)
+    .redirectOutput(ProcessBuilder.Redirect.PIPE)
+    .redirectError(ProcessBuilder.Redirect.PIPE)
+    .start().also { it.waitFor(timeoutAmount, timeoutUnit) }
+  if (process.exitValue() != 0) {
+    val output = process.errorStream.bufferedReader().readText();
+    println(output)
+    throw DockerContainerRunner.CommandRunFailedException(output)
   }
-  return false
-}
-
-public fun getRandomContainerPort(): String {
-  var port: Int?
-  do {
-    port = (56000..58000).random()
-  } while (isPortInUse(port))
-  return port.toString()
+  return process.inputStream.bufferedReader().use { it.readText() } +
+    process.errorStream.bufferedReader().readText()
 }
 
 
-public fun getRandomString(length: Int) : String {
+public fun getRandomString(length: Int): String {
   val allowedChars = ('A'..'Z') + ('a'..'z')
   return (1..length)
     .map { allowedChars.random() }

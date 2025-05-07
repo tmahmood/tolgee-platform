@@ -35,9 +35,9 @@ spring:
 tolgee:
   postgres-autostart:
     enabled: true
-    container-name: tolgee_backend_tests_postgres_main_ee
+    container-name: tolgee_postgres
     port: 55436
-    stop: false
+    stop: true
   data-path: ./build/test_data
   authentication:
     native-enabled: true

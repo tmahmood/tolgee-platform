@@ -27,10 +27,12 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.data.domain.Pageable
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.ResultActions
 import java.math.BigDecimal
 import java.util.function.Consumer
 
+@ActiveProfiles("tests")
 class ContentStorageControllerTest : ProjectAuthControllerTest("/v2/projects/") {
   private lateinit var testData: ContentDeliveryConfigTestData
 

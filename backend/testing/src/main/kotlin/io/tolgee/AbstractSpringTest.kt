@@ -60,6 +60,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cache.CacheManager
 import org.springframework.context.ApplicationContext
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.ResultActions
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionDefinition
@@ -68,6 +69,7 @@ import org.springframework.transaction.support.TransactionTemplate
 import java.time.Duration
 import java.util.*
 
+@ActiveProfiles("tests")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 abstract class AbstractSpringTest : AbstractTransactionalTest() {

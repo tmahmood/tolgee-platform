@@ -19,9 +19,11 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.client.RestTemplate
 import java.util.*
 
+@ActiveProfiles("tests")
 class EeSubscriptionUsageControllerTest : AuthorizedControllerTest() {
   @Autowired
   @MockBean

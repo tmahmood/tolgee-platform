@@ -42,7 +42,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.ConcurrentHashMap
 
-@Profile("testsSlow")
+@Profile("tests")
 class BatchJobManagementControllerTest : ProjectAuthControllerTest("/v2/projects/"), Logging {
   lateinit var testData: BatchJobsTestData
 
